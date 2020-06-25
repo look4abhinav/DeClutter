@@ -2,7 +2,7 @@ import os,shutil,logging,re
 
 #Creating a Logger for logs
 log_format = '%(levelname)s: %(asctime)s - %(message)s'
-logging.basicConfig(filename = 'D:/Python/Logs/logs_declutter.log',level = logging.DEBUG,format = log_format,filemode='w')
+logging.basicConfig(filename = 'D:/Logs/logs_declutter.log',level = logging.DEBUG,format = log_format, filemode='a')
 logger = logging.getLogger()
 
 formats = {
@@ -19,28 +19,29 @@ def getFileType(path):
 	#path = os.path.splitext(path)[-1]
 	return path.split('.')[-1]
 
-def rename(file):
-	filename = os.path.splitext(file)
-	number = re.findall('([0-9]+)$',filename[0])
-	newfilename = filename[0]
-	if not number:
-		i=1
-	else:
-		i=int(number[0])+1
-		newfilename = re.sub('([0-9]+)$','',filename[0])
-	return newfilename + str(i) + filename[1]
-		
 
-def checkDuplicate(file,path):
+def rename(file,path):
 	while os.path.exists(os.path.join(path,file)):			
-		newfilename = rename(file)
-		while True:
-			try:
+		i=0
+		temp = file
+		while True and i<10:
+			filename = os.path.splitext(temp)
+			number = re.findall('([0-9]+)$',filename[0])
+			newfilename = filename[0]
+			if not number:
+				i+=1
+			else:
+				i=int(number[0])+1
+				newfilename = re.sub('([0-9]+)$','',filename[0])
+			newfilename = newfilename + str(i) + filename[1]
+			if os.path.exists(os.path.join(path,newfilename)):
+				i+=1
+				temp = newfilename
+			else:
 				os.rename(file,newfilename)
-			except FileExistsError:
-				os.rename(file,rename(newfilename))
+				break
 		file = newfilename
-	logger.info('File exists in {}. Rename file to {}'.format(os.path.abspath(path),newfilename))
+	logger.warning('File exists in {}. Renaming file to {}'.format(os.path.abspath(path),newfilename))
 	return os.path.abspath(newfilename)
 		
 
@@ -53,13 +54,8 @@ def organize(src,dest):
 				if fileType in formats[types]:
 					logger.info('Moving {} to {} directory'.format(os.path.basename(path),types))
 					if os.path.exists(os.path.join(os.path.join(dest,types),os.path.basename(path))):
-						path = checkDuplicate(os.path.basename(path),os.path.join(dest,types))
-						print('Duplicate found',os.path.basename(path))
-					try:
-						shutil.move(path,os.path.join(dest,types))
-						pass
-					except:
-						print('Stopped')
+						path = rename(os.path.basename(path),os.path.join(dest,types))
+					shutil.move(path,os.path.join(dest,types))
 					
 
 def remove(src,dest):
