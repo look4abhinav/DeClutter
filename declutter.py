@@ -2,7 +2,7 @@ import os,shutil,logging,re
 
 #Creating a Logger for logs
 log_format = '%(levelname)s: %(asctime)s - %(message)s'
-logging.basicConfig(filename = 'D:/Logs/logs_declutter.log',level = logging.DEBUG,format = log_format, filemode='a')
+logging.basicConfig(filename = 'D:/Python/TestFolder/logs_declutter.log',level = logging.DEBUG,format = log_format)
 logger = logging.getLogger()
 
 formats = {
@@ -34,7 +34,8 @@ def rename(file,path):
 				i=int(number[0])+1
 				newfilename = re.sub('([0-9]+)$','',filename[0])
 			newfilename = newfilename + str(i) + filename[1]
-			if os.path.exists(os.path.join(path,newfilename)):
+			#print(newfilename,os.path.exists(os.path.join(os.path.dirname(file),newfilename)))
+			if os.path.exists(os.path.join(os.path.dirname(file),newfilename)):
 				i+=1
 				temp = newfilename
 			else:
