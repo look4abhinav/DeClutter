@@ -5,13 +5,6 @@ from watchdog.observers import Observer
 
 from functions import EventHandler, create, organize, remove
 
-'''src_path = 'D://Python//TestFolder'
-dest_path = os.path.join(src_path,'DeClutter')
-log_folder = os.path.join(src_path,'logs_declutter.log')
-print(src_path,dest_path,log_folder,sep = '\n')
-'''
-
-
 if __name__ == '__main__':
     print('Welcome to DeClutter')
     src_path = input('Enter Source Path: ')

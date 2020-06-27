@@ -1,2 +1,2 @@
 # DeClutter
-This is a python program to organize files.
+This is a python project to organize files.
