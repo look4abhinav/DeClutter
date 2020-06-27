@@ -1,13 +1,23 @@
-import os
 import logging
-import shutil
+import os
 import re
+import shutil
+
+from watchdog.events import FileSystemEventHandler
+
 from formats import formats
 
-def test():
-    print('Hello')
+log_folder = os.path.join(os.getcwd(),'logs_declutter.log')
 
-log_folder = 'D:\GitHub\DeClutter\logs_declutter.log'
+#Creating Observer
+class EventHandler(FileSystemEventHandler):
+    def __init__(self, src, dest):
+        self.src = src
+        self.dest = dest
+
+    def on_modified(self, event):
+        organize(src,dest)
+
 
 #Creating a Logger for logs
 log_format = '%(levelname)s: %(asctime)s - %(message)s'
@@ -29,9 +39,9 @@ def getFileType(path):
 
 #Rename files to avoid duplicate files
 def rename(file,path):
-	while os.path.exists(os.path.join(path,file)):			
+	while os.path.exists(os.path.join(path,os.path.basename(file))):			
 		i=0
-		temp = file
+		temp = os.path.basename(file)
 		while True and i<10:
 			filename = os.path.splitext(temp)
 			number = re.findall('([0-9]+)$',filename[0])
@@ -42,21 +52,19 @@ def rename(file,path):
 				i=int(number[0])+1
 				newfilename = re.sub('([0-9]+)$','',filename[0])
 			newfilename = newfilename + str(i) + filename[1]
-			#print(newfilename,os.path.exists(os.path.join(os.path.dirname(file),newfilename)))
 			if os.path.exists(os.path.join(os.path.dirname(file),newfilename)):
 				i+=1
 				temp = newfilename
 			else:
-				os.rename(file,newfilename)
+				os.rename(file,os.path.join(os.path.dirname(file),newfilename))
 				break
-		file = newfilename
-	logger.warning('File exists in {}. Renaming file to {}'.format(os.path.abspath(path),newfilename))
-	return os.path.abspath(newfilename)
+		file = os.path.join(os.path.dirname(file),newfilename)
+	return file
 		
 #Move files into appropriate folders
 def organize(src,dest):
 	logger.info('Getting file paths')
-	paths = [os.path.abspath(_) for _ in os.listdir(src) if not os.path.isdir(_)]
+	paths = [os.path.join(src,_) for _ in os.listdir(src) if not os.path.isdir(_)]
 	for path in paths:
 		if path != __file__:
 			fileType = getFileType(path)
@@ -64,7 +72,8 @@ def organize(src,dest):
 				if fileType in formats[types]:
 					logger.info('Moving {} to {} directory'.format(os.path.basename(path),types))
 					if os.path.exists(os.path.join(os.path.join(dest,types),os.path.basename(path))):
-						path = rename(os.path.basename(path),os.path.join(dest,types))
+						path = rename(os.path.abspath(path),os.path.join(dest,types))
+						logger.warning('File already exists in {}. Renaming file to {}'.format(os.path.join(dest,types),os.path.basename(path)))
 					shutil.move(path,os.path.join(dest,types))
 					
 #Move all files in the main folder and delete Declutter
