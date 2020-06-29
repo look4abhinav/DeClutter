@@ -16,7 +16,7 @@ class EventHandler(FileSystemEventHandler):
         self.dest = dest
 
     def on_modified(self, event):
-        organize(src,dest)
+        organize(self.src,self.dest)
 
 
 #Creating a Logger for logs

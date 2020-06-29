@@ -15,7 +15,7 @@ if __name__ == '__main__':
     print('2. Run DeClutter once')
     print('3. Remove DeClutter')
     while True:
-        choice = input('Choice: ')
+        choice = int(input('Choice: '))
         if choice == 1 or choice == 2:
             create(dest_path)
             organize(src_path,dest_path)
@@ -25,14 +25,14 @@ if __name__ == '__main__':
                 observer = Observer()
                 observer.schedule(event_handler, src_path, recursive=True)
                 observer.start()
-            else:
-                print('Running once...')
                 try:
                     while True:
                         sleep(60)
                 except KeyboardInterrupt:
                     observer.stop()
                 observer.join()
+            else:
+                print('Running once...')
         elif choice == 3:
             print("Removing Files...")
             remove(src_path,dest_path)
