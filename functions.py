@@ -59,12 +59,12 @@ def rename(file,path):
 				os.rename(file,os.path.join(os.path.dirname(file),newfilename))
 				break
 		file = os.path.join(os.path.dirname(file),newfilename)
-	return file
+	yield file
 		
 #Move files into appropriate folders
 def organize(src,dest):
 	logger.info('Getting file paths')
-	paths = [os.path.join(src,_) for _ in os.listdir(src) if not os.path.isdir(_)]
+	paths = (os.path.join(src,_) for _ in os.listdir(src) if not os.path.isdir(_))
 	for path in paths:
 		if path != __file__:
 			fileType = getFileType(path)
@@ -79,7 +79,7 @@ def organize(src,dest):
 #Move all files in the main folder and delete Declutter
 def remove(src,dest):
 	logger.info('Moving all files to {}'.format(src))
-	paths = [folders[0] for folders in os.walk(dest)]
+	paths = (folders[0] for folders in os.walk(dest))
 	for path in paths[::-1]:
 			for file in os.listdir(path):
 				logger.info('Moving {}'.format(os.path.basename(file)))
