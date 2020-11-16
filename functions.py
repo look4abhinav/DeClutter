@@ -3,21 +3,9 @@ import os
 import re
 import shutil
 
-from watchdog.events import FileSystemEventHandler
-
 from formats import formats
 
 log_folder = os.path.join(os.getcwd(),'logs_declutter.log')
-
-#Creating Observer
-class EventHandler(FileSystemEventHandler):
-    def __init__(self, src, dest):
-        self.src = src
-        self.dest = dest
-
-    def on_modified(self, event):
-        organize(self.src,self.dest)
-
 
 #Creating a Logger for logs
 log_format = '%(levelname)s: %(asctime)s - %(message)s'
@@ -42,6 +30,7 @@ def rename(file,path):
 	while os.path.exists(os.path.join(path,os.path.basename(file))):			
 		i=0
 		temp = os.path.basename(file)
+		newfilename = temp
 		while True and i<10:
 			filename = os.path.splitext(temp)
 			number = re.findall('([0-9]+)$',filename[0])
@@ -79,7 +68,7 @@ def organize(src,dest):
 #Move all files in the main folder and delete Declutter
 def remove(src,dest):
 	logger.info('Moving all files to {}'.format(src))
-	paths = (folders[0] for folders in os.walk(dest))
+	paths = [folders[0] for folders in os.walk(dest)]
 	for path in paths[::-1]:
 			for file in os.listdir(path):
 				logger.info('Moving {}'.format(os.path.basename(file)))
